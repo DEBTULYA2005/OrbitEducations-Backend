@@ -6,6 +6,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.middleware.csrf import get_token
 
 from .serializers import UserSerializer, SignupSerializer, LoginSerializer
 
@@ -24,7 +25,9 @@ class SignupView(APIView):
             return Response({"error at signup": str(e)}, status = status.HTTP_400_BAD_REQUEST)
         
         django_login(request, user)  # Log the user in after successful signup
-        return Response(UserSerializer(user).data, status = status.HTTP_201_CREATED)
+        data = UserSerializer(user).data
+        data["csrfToken"] = get_token(request)  # ← expose it in the body
+        return Response(data, status = status.HTTP_201_CREATED)
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -40,7 +43,9 @@ class LoginView(APIView):
             return Response({"error at login": "Invalid credentials"}, status = status.HTTP_401_UNAUTHORIZED)
         
         django_login(request, user)  # Log the user in after successful authentication
-        return Response(UserSerializer(user).data, status = status.HTTP_200_OK)
+        response_data = UserSerializer(user).data
+        response_data["csrfToken"] = get_token(request)  # ← expose it in the body
+        return Response(response_data, status = status.HTTP_200_OK)
 
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -58,7 +63,11 @@ class MeView(APIView):
     permission_classes = [permissions.AllowAny]
     
     def get(self, request):
-        if request.user.is_authenticated:
-            return Response(UserSerializer(request.user).data, status = status.HTTP_200_OK)
-        else:
-            return Response({"error": "User is not authenticated"}, status = status.HTTP_401_UNAUTHORIZED)
+        get_token(request)  # Ensure CSRF token is set in the response cookies
+        
+        if not request.user.is_authenticated:
+            return Response({"detail": "Not authenticated."}, status=401)
+        
+        data = UserSerializer(request.user).data
+        data["csrfToken"] = get_token(request)   # ← expose it in the body
+        return Response(data)
