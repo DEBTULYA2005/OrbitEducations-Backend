@@ -11,19 +11,23 @@ class UserSerializer(serializers.ModelSerializer):
     parentName = serializers.CharField(source = "parent_name", required = False, allow_blank = True)
     parentPhone = serializers.CharField(source = "parent_phone", required = False, allow_blank = True)
     enrolledCourse = serializers.SerializerMethodField()
+    enrolledCourseCategory = serializers.SerializerMethodField()
     
     class Meta:
         model = User
         fields = [
             "uid", "name", "email", "phone", "parentName", "parentPhone", 
-            "address", "enrolledCourse", "date_joined",
+            "address", "enrolledCourse", "enrolledCourseCategory", "date_joined",
         ]
         # Fields cannot be modified from the front-end.
-        read_only_fields = ["uid", "enrolledCourse", "date_joined"]
+        read_only_fields = ["uid", "enrolledCourse", "enrolledCourseCategory", "date_joined"]
         
     def get_enrolledCourse(self, obj):
         if obj.enrolled_course: return obj.enrolled_course.title
         else: return None
+    
+    def get_enrolledCourseCategory(self, obj):   # ← new method
+        return obj.enrolled_course.category if obj.enrolled_course else None
 
 class SignupSerializer(serializers.ModelSerializer):
     

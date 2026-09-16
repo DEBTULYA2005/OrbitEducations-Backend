@@ -5,6 +5,7 @@ from .models import Course, CourseApplication
 from .serializers import CourseSerializers, CourseApplicationSerializers
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from rest_framework.exceptions import PermissionDenied
 
 class CourseFilter(filters.FilterSet):
     category = filters.CharFilter(field_name="category")
@@ -32,10 +33,22 @@ class CourseDetailView(generics.RetrieveAPIView):
 class CourseApplicationCreateView(generics.CreateAPIView):
     queryset = CourseApplication.objects.all()
     serializer_class = CourseApplicationSerializers
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     
     def perform_create(self, serializer):
-        user = self.request.user if self.request.user.is_authenticated else None
+        user = self.request.user
+        category = serializer.validated_data.get("category")
+        course = serializer.validated_data.get("course")
+
+        # Determine the category being applied to, whichever form it came in
+        target_category = category or (course.category if course else None)
+
+        if user.enrolled_course and target_category != user.enrolled_course.category:
+            raise PermissionDenied(
+                f"You can only apply to courses under your enrolled track: "
+                f"{user.enrolled_course.category}."
+            )
+
         serializer.save(user=user)
 
 
