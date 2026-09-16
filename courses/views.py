@@ -51,4 +51,12 @@ class CourseApplicationCreateView(generics.CreateAPIView):
             category=course.category
         )
 
+class MyCourseApplicationView(generics.ListAPIView):
+    serializer_class = CourseApplicationSerializers
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return CourseApplication.objects.filter(
+            user=self.request.user
+        ).select_related("course")
 

@@ -13,6 +13,11 @@ class CourseApplicationSerializers(serializers.ModelSerializer):
         queryset=Course.objects.filter(is_active=True),
         write_only=True
     )
+    
+    courseTitle = serializers.CharField(
+        source="course.title",
+        read_only=True
+    )
 
     class Meta:
         model = CourseApplication
@@ -22,9 +27,10 @@ class CourseApplicationSerializers(serializers.ModelSerializer):
             "phone",
             "email",
             "courseId",
+            "courseTitle",
             "message",
             "created_at"
         ]
-        read_only_fields = ["id", "created_at"]          
+        read_only_fields = ["id", "created_at", "courseTitle"]          
         
         
