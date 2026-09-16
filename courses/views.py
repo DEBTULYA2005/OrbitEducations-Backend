@@ -3,6 +3,8 @@ from django_filters import rest_framework as filters
 from rest_framework import generics, permissions
 from .models import Course, CourseApplication
 from .serializers import CourseSerializers, CourseApplicationSerializers
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 class CourseFilter(filters.FilterSet):
     category = filters.CharFilter(field_name="category")
@@ -26,6 +28,7 @@ class CourseDetailView(generics.RetrieveAPIView):
     serializer_class = CourseSerializers
     permission_classes = [permissions.AllowAny]
 
+@method_decorator(csrf_exempt, name='dispatch')
 class CourseApplicationCreateView(generics.CreateAPIView):
     queryset = CourseApplication.objects.all()
     serializer_class = CourseApplicationSerializers
