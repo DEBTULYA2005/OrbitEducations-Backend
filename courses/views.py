@@ -37,18 +37,18 @@ class CourseApplicationCreateView(generics.CreateAPIView):
     
     def perform_create(self, serializer):
         user = self.request.user
-        category = serializer.validated_data.get("category")
-        course = serializer.validated_data.get("course")
+        course = serializer.validated_data["course"]
 
-        # Determine the category being applied to, whichever form it came in
-        target_category = category or (course.category if course else None)
+        if user.enrolled_course:
+            if course.category != user.enrolled_course.category:
+                raise PermissionDenied(
+                    f"You can only apply to courses under your enrolled track: "
+                    f"{user.enrolled_course.category}."
+                )
 
-        if user.enrolled_course and target_category != user.enrolled_course.category:
-            raise PermissionDenied(
-                f"You can only apply to courses under your enrolled track: "
-                f"{user.enrolled_course.category}."
-            )
-
-        serializer.save(user=user)
+        serializer.save(
+            user=user,
+            category=course.category
+        )
 
 
