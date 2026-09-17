@@ -16,6 +16,7 @@ class Course(models.Model):
        title = models.CharField(max_length=200)
        category = models.CharField(max_length=20, choices=CourseCategory.choices)
        description = models.TextField()
+       image_url = models.URLField(max_length=500, blank=True, null=True)
        syllabus = models.JSONField(default=list, blank=True)
        is_active = models.BooleanField(default=True)
        created_at = models.DateTimeField(auto_now_add=True)
