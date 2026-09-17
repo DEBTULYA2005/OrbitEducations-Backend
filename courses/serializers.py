@@ -18,6 +18,11 @@ class CourseApplicationSerializers(serializers.ModelSerializer):
         source="course.title",
         read_only=True
     )
+    
+    courseCategory = serializers.CharField(
+        source="course.get_category_display",
+        read_only=True
+    )
 
     class Meta:
         model = CourseApplication
@@ -28,9 +33,10 @@ class CourseApplicationSerializers(serializers.ModelSerializer):
             "email",
             "courseId",
             "courseTitle",
+            "courseCategory",
             "message",
             "created_at"
         ]
-        read_only_fields = ["id", "created_at", "courseTitle"]          
+        read_only_fields = ["id", "created_at", "courseTitle", "courseCategory"]          
         
         
