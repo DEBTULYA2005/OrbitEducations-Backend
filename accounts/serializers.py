@@ -10,14 +10,31 @@ class UserSerializer(serializers.ModelSerializer):
     
     parentName = serializers.CharField(source = "parent_name", required = False, allow_blank = True)
     parentPhone = serializers.CharField(source = "parent_phone", required = False, allow_blank = True)
+    highestQualification = serializers.CharField(
+        source="highest_qualification",
+        required=False,
+        allow_blank=True
+    )
+
+    institution = serializers.CharField(
+        required=False,
+        allow_blank=True
+    )
+
+    yearOfPassing = serializers.CharField(
+        source="year_of_passing",
+        required=False,
+        allow_blank=True
+    )
     enrolledCourse = serializers.SerializerMethodField()
     enrolledCourseCategory = serializers.SerializerMethodField()
     
     class Meta:
         model = User
         fields = [
-            "uid", "name", "email", "phone", "parentName", "parentPhone", 
-            "address", "enrolledCourse", "enrolledCourseCategory", "date_joined",
+            "uid", "name", "email", "phone", "highestQualification", "institution",
+            "yearOfPassing", "parentName", "parentPhone", "address", "enrolledCourse", 
+            "enrolledCourseCategory", "date_joined",
         ]
         # Fields cannot be modified from the front-end.
         read_only_fields = ["uid", "enrolledCourse", "enrolledCourseCategory", "date_joined"]
@@ -34,12 +51,30 @@ class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only = True, required = True, validators = [validate_password])
     parentName = serializers.CharField(source = "parent_name", required = False, allow_blank = True)
     parentPhone = serializers.CharField(source = "parent_phone", required = False, allow_blank = True)
+    highestQualification = serializers.CharField(
+        source="highest_qualification",
+        required=False,
+        allow_blank=True
+    )
+
+    institution = serializers.CharField(
+        required=False,
+        allow_blank=True
+    )
+
+    yearOfPassing = serializers.CharField(
+        source="year_of_passing",
+        required=False,
+        allow_blank=True
+    )
     enrolledCourse = serializers.CharField(write_only = True, required = False, allow_blank = True)
     
     class Meta:
         model = User
         fields = [
-            "uid", "name", "email", "phone", "password", "parentName", "parentPhone", "address", "enrolledCourse",
+            "uid", "name", "email", "phone", "password", "highestQualification",
+            "institution", "yearOfPassing", "parentName", "parentPhone", "address", 
+            "enrolledCourse",
         ]
         
     def validate_uid(self, value):

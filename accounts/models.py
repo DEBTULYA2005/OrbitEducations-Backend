@@ -8,6 +8,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
+    
+    highest_qualification = models.CharField(max_length=100, blank=True)
+    institution = models.CharField(max_length=200, blank=True)
+    year_of_passing = models.CharField(max_length=4, blank=True)
 
     parent_name = models.CharField(max_length=150, blank=True)
     parent_phone = models.CharField(max_length=20, blank=True)
